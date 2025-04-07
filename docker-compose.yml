@@ -1,0 +1,30 @@
+services:
+  maria-db:
+    container_name: rick-morty-db
+    image: mariadb:11.7.2
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: example
+      MARIADB_USER: example-user
+      MARIADB_PASSWORD: my_cool_secret
+
+    ports:
+      - "3306:3306"
+  flask_app:
+    container_name: flask_app
+    image: python:3.11-slim
+
+    working_dir: /app
+    command: >
+      sh -c "pip install -r requirements.txt && flask --app main run --host=0.0.0.0 --port=5000 --debug"
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - ./app:/app
+    restart: always
+
+    depends_on:
+      - maria-db
+
+    env_file:
+      - .env
